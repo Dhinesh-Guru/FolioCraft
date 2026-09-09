@@ -6,7 +6,7 @@ export function useScrollInView() {
   return useContext(ScrollInViewContext);
 }
 
-export function ScrollReveal({ children, className = '', delay = 0, threshold = 0.15 }) {
+export function ScrollReveal({ children, className = '', delay = 0, threshold = 0.02 }) {
   const [isInView, setIsInView] = useState(false);
   const elementRef = useRef(null);
 
@@ -16,11 +16,14 @@ export function ScrollReveal({ children, className = '', delay = 0, threshold = 
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsInView(entry.isIntersecting);
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.unobserve(node);
+        }
       },
       {
         threshold: threshold,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: '0px 0px -10px 0px'
       }
     );
 

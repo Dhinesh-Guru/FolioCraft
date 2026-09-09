@@ -814,26 +814,32 @@ ${animationCss}
 document.addEventListener('DOMContentLoaded', function() {
   const observerOptions = {
     root: null,
-    rootMargin: '0px 0px -40px 0px',
-    threshold: 0.12
+    rootMargin: '0px 0px -10px 0px',
+    threshold: 0.02
   };
 
-  const revealObserver = new IntersectionObserver((entries) => {
+  const revealObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('revealed');
         const skillFills = entry.target.querySelectorAll('.skill-bar-fill');
         skillFills.forEach(fill => fill.classList.add('animated'));
-      } else {
-        entry.target.classList.remove('revealed');
-        const skillFills = entry.target.querySelectorAll('.skill-bar-fill');
-        skillFills.forEach(fill => fill.classList.remove('animated'));
+        observer.unobserve(entry.target);
       }
     });
   }, observerOptions);
 
   const revealElements = document.querySelectorAll('.scroll-reveal');
-  revealElements.forEach(el => revealObserver.observe(el));
+  revealElements.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      el.classList.add('revealed');
+      const skillFills = el.querySelectorAll('.skill-bar-fill');
+      skillFills.forEach(fill => fill.classList.add('animated'));
+    } else {
+      revealObserver.observe(el);
+    }
+  });
 
   // Certificate Modal Handler (Intercepts clicks to avoid Chrome about:blank errors)
   const certLinks = document.querySelectorAll('.cert-link');
